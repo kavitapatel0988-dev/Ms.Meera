@@ -1,0 +1,10 @@
+{
+  "name": "Ms. Meera - Code Teacher",
+  "short_name": "Code Teacher",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#22332B",
+  "theme_color": "#22332B",
+  "orientation": "portrait",
+  "icons": []
+}
