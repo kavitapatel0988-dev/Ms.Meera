@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#22332B">
+<title>Ms. Meera — Code Teacher</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0; background:#22332B; color:#F1EDE4; font-family:'Segoe UI', system-ui, sans-serif;}
+  .mono{font-family:'JetBrains Mono', monospace;}
+  header{padding:16px 18px; border-bottom:1px solid #3A4E42; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;}
+  .teacher{display:flex; align-items:center; gap:12px;}
+  .avatar{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#E8A0BF,#C77DA8);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 3px 10px rgba(199,125,168,0.35);}
+  .name{font-weight:700; font-size:17px;}
+  .sub{font-size:13px; color:#B8CAB9;}
+  .pill{font-size:13px; background:#2E4038; padding:6px 12px; border-radius:20px; border:1px solid #3A4E42; cursor:pointer;}
+  .pill.on{background:rgba(232,160,191,0.15); border-color:#E8A0BF;}
+  .layout{display:flex; flex-wrap:wrap;}
+  .sidebar{width:220px; min-width:180px; padding:16px 12px; border-right:1px solid #3A4E42; display:flex; flex-direction:column; gap:8px;}
+  .sidebar-label{font-size:12px; letter-spacing:0.08em; color:#8FA893; text-transform:uppercase; margin-bottom:4px;}
+  .topic-btn{display:flex; align-items:center; gap:8px; padding:10px 12px; border-radius:10px; border:1px solid #3A4E42; background:transparent; color:#F1EDE4; cursor:pointer; font-size:14.5px; text-align:left; width:100%;}
+  .topic-btn.active{border-color:#E8A0BF; background:rgba(232,160,191,0.12);}
+  .topic-btn .check{color:#8FE0A8; margin-left:auto;}
+  main{flex:1; min-width:280px; padding:18px; display:flex; flex-direction:column; gap:16px;}
+  .bubble-row{display:flex; gap:12px; align-items:flex-start;}
+  .bubble{background:#2E4038; border:1px solid #3A4E42; border-radius:4px 16px 16px 16px; padding:14px 16px; font-size:14.5px; line-height:1.6; white-space:pre-wrap; flex:1;}
+  .bubble.ok{color:#8FE0A8;}
+  .issue-title{color:#F2B84B; font-weight:700; margin-bottom:6px;}
+  .issue{color:#F1C6C6; margin-bottom:4px;}
+  .editor-wrap{border:1px solid #3A4E42; border-radius:12px; overflow:hidden;}
+  .editor-title{background:#1B2921; padding:8px 14px; font-size:12px; color:#8FA893; border-bottom:1px solid #3A4E42;}
+  textarea{width:100%; min-height:180px; background:#141F19; color:#E8ECE4; border:none; outline:none; font-size:14.5px; padding:14px 16px; resize:vertical; line-height:1.6;}
+  .btn-row{display:flex; gap:10px; flex-wrap:wrap;}
+  button.act{padding:10px 16px; border-radius:8px; font-weight:700; font-size:13.5px; cursor:pointer; font-family:inherit; border:none;}
+  .btn-check{background:#E8A0BF; color:#2A1620;}
+  .btn-ghost{background:transparent; border:1px solid; }
+  .btn-hint{color:#F2B84B; border-color:#F2B84B;}
+  .btn-sol{color:#7EC8E3; border-color:#7EC8E3;}
+  .btn-reset{color:#8FA893; border-color:#3A4E42;}
+  .note{font-size:13.5px; color:#B8CAB9; background:#1B2921; padding:10px 14px; border-radius:8px; border:1px solid #3A4E42;}
+  pre.solution{font-size:14px; color:#8FE0A8; background:#141F19; padding:14px 16px; border-radius:8px; border:1px solid #3A4E42; white-space:pre-wrap; margin:0;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="teacher">
+    <div class="avatar" id="avatar">😊</div>
+    <div>
+      <div class="name">Ms. Meera — Code Teacher</div>
+      <div class="sub">Tumhara code dekh ke galti bataungi ✨</div>
+    </div>
+  </div>
+  <div style="display:flex; align-items:center; gap:10px;">
+    <button class="pill on mono" id="voiceToggle">🔊 Awaaz ON</button>
+    <div class="pill mono" id="progressPill">Progress: 0/6 ✅</div>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-label">Kya sikhna hai?</div>
+  </div>
+  <main>
+    <div class="bubble-row">
+      <div class="avatar" id="avatarSmall">😊</div>
+      <div class="bubble" id="bubble"></div>
+    </div>
+    <div class="editor-wrap">
+      <div class="editor-title mono" id="fileName">print.py</div>
+      <textarea id="codeArea" class="mono" spellcheck="false"></textarea>
+    </div>
+    <div class="btn-row">
+      <button class="act btn-check" id="checkBtn">✅ Code Check Karo</button>
+      <button class="act btn-ghost btn-hint" id="hintBtn">💡 Hint Do</button>
+      <button class="act btn-ghost btn-sol" id="solBtn">📖 Solution Dikhao</button>
+      <button class="act btn-ghost btn-reset" id="resetBtn">🔄 Reset</button>
+    </div>
+    <div class="note" id="hintBox" style="display:none;">Hint: instruction ke example ko dhyan se dekho — bas keywords aur symbols (: , ( ) " ") sahi jagah pe hone chahiye.</div>
+    <pre class="solution" id="solBox" style="display:none;"></pre>
+  </main>
+</div>
+
+<script>
+function lineList(code){ return code.replace(/\r\n/g,"\n").split("\n"); }
+function findColonIssues(lines, keywords){
+  const issues=[];
+  lines.forEach((line,idx)=>{
+    const trimmed=line.trim();
+    const startsWithKw=keywords.some(kw=>trimmed===kw||trimmed.startsWith(kw+" ")||trimmed.startsWith(kw+"("));
+    if(startsWithKw && trimmed.length>0 && !trimmed.endsWith(":")){
+      issues.push({message:`Line ${idx+1} mein "${trimmed}" ke aakhir mein colon (:) lagana bhool gaye. Python mein if / for / def / else ke baad hamesha : lagta hai.`});
+    }
+  });
+  return issues;
+}
+function findIndentationIssues(lines){
+  const issues=[];
+  for(let i=0;i<lines.length-1;i++){
+    const cur=lines[i].trimEnd();
+    if(cur.trim().endsWith(":")){
+      const next=lines[i+1];
+      if(next!==undefined && next.trim().length>0 && !/^(\s{2,}|\t)/.test(next)){
+        issues.push({message:`Line ${i+2} mein indentation (spacing) missing hai. Colon (:) ke baad wali line thodi andar (space/tab de kar) likhni padti hai, warna Python "IndentationError" degi.`});
+      }
+    }
+  }
+  return issues;
+}
+function findQuoteIssues(code){
+  const singles=(code.match(/'/g)||[]).length;
+  const doubles=(code.match(/"/g)||[]).length;
+  const issues=[];
+  if(singles%2!==0) issues.push({message:`Kahin single quote (') adhoora reh gaya hai — check karo har ' ka jodi wala ' laga hai ya nahi.`});
+  if(doubles%2!==0) issues.push({message:`Kahin double quote (") adhoora reh gaya hai — check karo har " ka jodi wala " laga hai ya nahi.`});
+  return issues;
+}
+function findParenIssues(code){
+  let depth=0;
+  for(const ch of code){ if(ch==="(") depth++; if(ch===")") depth--; }
+  if(depth!==0){
+    return [{message: depth>0 ? `Ek ya zyada "(" band nahi hui — closing bracket ")" lagana bhool gaye.` : `Extra ")" hai jiska koi matching "(" nahi mila — ek closing bracket zyada lag gayi hai.`}];
+  }
+  return [];
+}
+function genericChecks(code, keywordsForColon){
+  const lines=lineList(code);
+  return [...findColonIssues(lines,keywordsForColon), ...findIndentationIssues(lines), ...findQuoteIssues(code), ...findParenIssues(code)];
+}
+
+const TOPICS=[
+  {id:"print", title:"Print Statement", emoji:"🖨️",
+   instruction:`Sabse pehla kadam: screen pe kuch likhna. Neeche editor mein likho:\n\nprint("Hello Duniya!")\n\nBas isse chalao aur dekho kya hota hai.`,
+   starter:`print("Hello Duniya!")`, solution:`print("Hello Duniya!")`,
+   validate:(code)=>{
+     const issues=genericChecks(code,[]);
+     if(issues.length) return {ok:false,issues};
+     if(!/print\s*\(/.test(code)) return {ok:false,issues:[{message:`"print(" kahin nazar nahi aaya. print() function hi screen pe cheezein dikhata hai — usse use karo.`}]};
+     if(!/print\s*\(\s*["'].*["']\s*\)/.test(code)) return {ok:false,issues:[{message:`print() ke andar quotes ("...") mein text hona chahiye. Jaise: print("Hello Duniya!")`}]};
+     return {ok:true,message:`Bilkul sahi! print() function ka yahi kaam hai — jo bhi quotes ke andar likho, wo screen pe dikh jaata hai. 🎉`};
+   }},
+  {id:"variables", title:"Variables", emoji:"📦",
+   instruction:`Ek variable banao jisme apna naam store ho, phir usse print karo.\n\nExample:\nname = "Rahul"\nprint(name)\n\nApna naam daal ke try karo.`,
+   starter:`name = "Rahul"\nprint(name)`, solution:`name = "Rahul"\nprint(name)`,
+   validate:(code)=>{
+     const issues=genericChecks(code,[]);
+     if(issues.length) return {ok:false,issues};
+     const assignMatch=code.match(/(\w+)\s*=\s*["'][^"']*["']/);
+     if(!assignMatch) return {ok:false,issues:[{message:`Koi variable create hota hua nahi dikha. Pattern yeh hona chahiye: naam = "kuch text" — bina quotes ke text mat likho.`}]};
+     const varName=assignMatch[1];
+     const printRegex=new RegExp(`print\\s*\\(\\s*${varName}\\s*\\)`);
+     if(!printRegex.test(code)){
+       if(new RegExp(`print\\s*\\(\\s*["']${varName}["']\\s*\\)`).test(code)) return {ok:false,issues:[{message:`print(${varName}) likhte waqt "${varName}" ko quotes ke andar mat daalo — variable ka naam bina quotes ke likhte hain.`}]};
+       return {ok:false,issues:[{message:`Variable "${varName}" banaya toh sahi, par use print() ke andar likh ke dikhana bhi zaroori hai. Try: print(${varName})`}]};
+     }
+     return {ok:true,message:`Perfect! Tumne "${varName}" naam ka box banaya, usme value rakhi, aur print se bahar nikaal ke dikhaya. Yahi hai variables ka core idea. 🎉`};
+   }},
+  {id:"ifelse", title:"If / Else", emoji:"🔀",
+   instruction:`Ek number check karo ki even hai ya odd.\n\nExample:\nnumber = 10\nif number % 2 == 0:\n    print("Even")\nelse:\n    print("Odd")`,
+   starter:`number = 10\nif number % 2 == 0:\n    print("Even")\nelse:\n    print("Odd")`,
+   solution:`number = 10\nif number % 2 == 0:\n    print("Even")\nelse:\n    print("Odd")`,
+   validate:(code)=>{
+     const issues=genericChecks(code,["if","else","elif"]);
+     if(issues.length) return {ok:false,issues};
+     if(!/\bif\b/.test(code)) return {ok:false,issues:[{message:`"if" keyword kahin dikha hi nahi. Decision lene ke liye if se shuru karna padta hai.`}]};
+     if(!/\belse\b/.test(code)) return {ok:false,issues:[{message:`"else" wala part missing hai — agar condition False ho tab kya karna hai, wo bhi likhna zaroori hai.`}]};
+     if(!/%\s*2\s*==\s*0/.test(code)) return {ok:false,issues:[{message:`Even check karne ke liye "number % 2 == 0" jaisa condition chahiye. % ka matlab hota hai "divide karke jo bacha (remainder)".`}]};
+     return {ok:true,message:`Badhiya! Condition sahi hai — % 2 == 0 se pata chalta hai number even hai ya odd, aur if/else se decide hota hai kaunsa print chalega. 🎉`};
+   }},
+  {id:"loops", title:"Loops (for)", emoji:"🔁",
+   instruction:`1 se 5 tak numbers print karo loop use karke.\n\nExample:\nfor i in range(1, 6):\n    print(i)\n\nNote: range(1, 6) matlab 1 se 5 tak (6 include nahi hota).`,
+   starter:`for i in range(1, 6):\n    print(i)`, solution:`for i in range(1, 6):\n    print(i)`,
+   validate:(code)=>{
+     const issues=genericChecks(code,["for","while"]);
+     if(issues.length) return {ok:false,issues};
+     if(!/\bfor\b.*\bin\b.*range\s*\(/.test(code)) return {ok:false,issues:[{message:`Loop ka pattern hona chahiye: for i in range(...): — "for", "in", aur "range(" teeno check karo sahi order mein hain ya nahi.`}]};
+     const rangeMatch=code.match(/range\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)/);
+     if(!rangeMatch) return {ok:false,issues:[{message:`range() ke andar do numbers hone chahiye, comma se separate — jaise range(1, 6).`}]};
+     return {ok:true,message:`Sahi! Loop 1 se 5 tak chalega kyunki range(1, 6) mein 6 khud include nahi hota. Yahi loops ka magic hai — baar baar repeat karo bina 5 baar likhe. 🎉`};
+   }},
+  {id:"functions", title:"Functions", emoji:"⚙️",
+   instruction:`Ek function banao jo do numbers add kare.\n\nExample:\ndef add(a, b):\n    return a + b\n\nprint(add(4, 5))`,
+   starter:`def add(a, b):\n    return a + b\n\nprint(add(4, 5))`,
+   solution:`def add(a, b):\n    return a + b\n\nprint(add(4, 5))`,
+   validate:(code)=>{
+     const issues=genericChecks(code,["def"]);
+     if(issues.length) return {ok:false,issues};
+     if(!/\bdef\s+\w+\s*\([^)]*\)\s*:/.test(code)) return {ok:false,issues:[{message:`Function banane ka pattern hai: def naam(parameters): — check karo "def" ke baad function ka naam aur brackets sahi se likhe hain.`}]};
+     if(!/\breturn\b/.test(code)) return {ok:false,issues:[{message:`Function ke andar "return" missing hai. return ke bina function kuch wapas nahi bhejta.`}]};
+     const funcNameMatch=code.match(/def\s+(\w+)\s*\(/);
+     if(funcNameMatch){
+       const fname=funcNameMatch[1];
+       const calls=code.match(new RegExp(`\\b${fname}\\s*\\(`,"g"))||[];
+       if(calls.length<2) return {ok:false,issues:[{message:`Function "${fname}" banaya, par kahin call (use) nahi kiya. Function banane ke baad usse call bhi karna padta hai: ${fname}(...)`}]};
+     }
+     return {ok:true,message:`Zabardast! Function bana, return se value wapas bheji, aur call bhi kiya. Ab tum ek baar code likh ke usse baar baar reuse kar sakte ho. 🎉`};
+   }},
+  {id:"lists", title:"Lists", emoji:"🧺",
+   instruction:`Fruits ki ek list banao aur pehla fruit print karo.\n\nExample:\nfruits = ["apple", "mango", "banana"]\nprint(fruits[0])\n\nYaad rakho: list ka pehla item index 0 pe hota hai.`,
+   starter:`fruits = ["apple", "mango", "banana"]\nprint(fruits[0])`,
+   solution:`fruits = ["apple", "mango", "banana"]\nprint(fruits[0])`,
+   validate:(code)=>{
+     const issues=genericChecks(code,[]);
+     if(issues.length) return {ok:false,issues};
+     if(!/\[\s*["'][^"']*["']\s*(,\s*["'][^"']*["']\s*)*\]/.test(code)) return {ok:false,issues:[{message:`List banane ka pattern hai: naam = ["item1", "item2", "item3"] — square brackets [ ] aur comma se separate items check karo.`}]};
+     if(!/\[\s*0\s*\]/.test(code) && !/\[\s*-?\d+\s*\]/.test(code)) return {ok:false,issues:[{message:`List se ek item nikaal ke print karo, jaise fruits[0] — index number square brackets mein.`}]};
+     return {ok:true,message:`Ekdum sahi! List mein multiple values ek saath store hoti hain, aur index number [0], [1]... se unhe access karte hain. 🎉`};
+   }}
+];
+
+let selectedId=TOPICS[0].id;
+let completed={};
+let voiceOn=true;
+
+function speakText(text){
+  if(!voiceOn) return;
+  try{
+    if(!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const clean=text.replace(/[✅💡📖🔄🎉😊🤔🙂👇•]/g,"").trim();
+    if(!clean) return;
+    const utter=new SpeechSynthesisUtterance(clean);
+    const voices=window.speechSynthesis.getVoices();
+    const hiVoice=voices.find(v=>v.lang && v.lang.toLowerCase().startsWith("hi"));
+    if(hiVoice) utter.voice=hiVoice;
+    utter.lang=hiVoice?hiVoice.lang:"en-IN";
+    utter.pitch=1.05; utter.rate=0.95;
+    window.speechSynthesis.speak(utter);
+  }catch(e){}
+}
+
+function getTopic(){ return TOPICS.find(t=>t.id===selectedId); }
+
+function renderSidebar(){
+  const sb=document.getElementById("sidebar");
+  sb.innerHTML='<div class="sidebar-label">Kya sikhna hai?</div>';
+  TOPICS.forEach(t=>{
+    const btn=document.createElement("button");
+    btn.className="topic-btn"+(t.id===selectedId?" active":"");
+    btn.innerHTML=`<span>${t.emoji}</span><span>${t.title}</span>`+(completed[t.id]?'<span class="check">✓</span>':"");
+    btn.onclick=()=>{ selectedId=t.id; loadTopic(); };
+    sb.appendChild(btn);
+  });
+}
+
+function renderProgress(){
+  const n=Object.keys(completed).length;
+  document.getElementById("progressPill").textContent=`Progress: ${n}/${TOPICS.length} ✅`;
+}
+
+function loadTopic(){
+  const t=getTopic();
+  document.getElementById("codeArea").value=t.starter;
+  document.getElementById("fileName").textContent=t.title.toLowerCase().replace(/\s/g,"_")+".py";
+  document.getElementById("bubble").className="bubble";
+  document.getElementById("bubble").textContent=t.instruction;
+  document.getElementById("hintBox").style.display="none";
+  document.getElementById("solBox").style.display="none";
+  renderSidebar();
+  speakText(t.instruction);
+}
+
+document.getElementById("checkBtn").onclick=()=>{
+  const t=getTopic();
+  const code=document.getElementById("codeArea").value;
+  const result=t.validate(code);
+  const bubble=document.getElementById("bubble");
+  if(result.ok){
+    bubble.className="bubble ok";
+    bubble.textContent=result.message;
+    completed[t.id]=true;
+    renderSidebar(); renderProgress();
+    speakText(result.message);
+  } else {
+    bubble.className="bubble";
+    bubble.innerHTML='<div class="issue-title">Yahan dekho 👇</div>'+result.issues.map(i=>`<div class="issue">• ${i.message}</div>`).join("");
+    speakText(result.issues.map(i=>i.message).join(". "));
+  }
+};
+
+document.getElementById("hintBtn").onclick=()=>{
+  const box=document.getElementById("hintBox");
+  box.style.display = box.style.display==="none" ? "block" : "none";
+};
+document.getElementById("solBtn").onclick=()=>{
+  const box=document.getElementById("solBox");
+  if(box.style.display==="none"){ box.textContent=getTopic().solution; box.style.display="block"; }
+  else box.style.display="none";
+};
+document.getElementById("resetBtn").onclick=()=>{ loadTopic(); };
+document.getElementById("voiceToggle").onclick=(e)=>{
+  voiceOn=!voiceOn;
+  e.target.textContent = voiceOn ? "🔊 Awaaz ON" : "🔇 Awaaz OFF";
+  e.target.className = "pill mono" + (voiceOn ? " on" : "");
+  if(!voiceOn && window.speechSynthesis) window.speechSynthesis.cancel();
+};
+
+if(window.speechSynthesis){ window.speechSynthesis.onvoiceschanged=()=>{}; window.speechSynthesis.getVoices(); }
+loadTopic();
+renderProgress();
+
+if('serviceWorker' in navigator){
+  // no-op placeholder; PWABuilder will inject one during packaging if needed
+}
+</script>
+</body>
+</html>
